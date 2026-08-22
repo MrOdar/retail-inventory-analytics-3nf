@@ -1,0 +1,32 @@
+# ============================================================================
+# Line-ending normalization
+# ============================================================================
+# Everything in this repository is consumed on Linux at some point: the SQL
+# scripts run inside the postgres:15-alpine container, and the Makefile runs
+# under GNU Make. A CRLF Makefile breaks recipe parsing, and CRLF in a SQL
+# script leaves stray \r inside string literals -- so these are pinned to LF
+# regardless of the contributor's platform or core.autocrlf setting.
+# ============================================================================
+
+# Default: normalize to LF in the repository, let Git decide on checkout.
+*               text=auto eol=lf
+
+# --- Must be LF: executed on Linux / by GNU Make ---------------------------
+Makefile        text eol=lf
+*.sql           text eol=lf
+*.py            text eol=lf
+*.yml           text eol=lf
+*.yaml          text eol=lf
+*.sh            text eol=lf
+.env.example    text eol=lf
+
+# --- Must be CRLF: Windows PowerShell tooling ------------------------------
+*.ps1           text eol=crlf
+*.cmd           text eol=crlf
+*.bat           text eol=crlf
+
+# --- Documentation ----------------------------------------------------------
+*.md            text eol=lf
+
+# --- Generated data: keep diffs out of review ------------------------------
+*.csv           text eol=lf -diff

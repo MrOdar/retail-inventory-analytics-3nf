@@ -1,0 +1,21 @@
+# ============================================================================
+# Python dependencies -- Retail Inventory & Waste Reduction Analytics
+# Install with:  pip install -r requirements.txt
+# ============================================================================
+
+# --- ETL pipeline (src/etl_pipeline.py) ------------------------------------
+# DataFrame engine for the extract/transform phases and the quality gate.
+pandas>=2.0,<4.0
+
+# SQL toolkit: connection pooling, parameter binding, chunked executemany.
+SQLAlchemy>=2.0,<3.0
+
+# PostgreSQL driver used by the postgresql+psycopg2 dialect. The -binary wheel
+# ships its own libpq, so no local PostgreSQL client build is required.
+psycopg2-binary>=2.9,<3.0
+
+# ---------------------------------------------------------------------------
+# NOTE: src/data_generator.py deliberately has NO third-party dependencies.
+#       It runs on a bare Python 3.9+ standard library, so the synthetic
+#       datasets can be produced on any machine without an install step.
+# ---------------------------------------------------------------------------
