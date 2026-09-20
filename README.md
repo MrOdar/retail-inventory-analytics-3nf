@@ -1,5 +1,9 @@
 # Plataforma Analítica de Inventarios Retail y Control de Mermas — Arquitectura de Datos End-to-End
 
+> 🚀 **Dashboard Web Interactivo en Vivo:** [retail-inventory-web.vercel.app](https://retail-inventory-web.vercel.app/)  
+> 📁 **Repositorio del Frontend:** [`MrOdar/retail-inventory-web`](https://github.com/MrOdar/retail-inventory-web)
+
+[![Live Demo](https://img.shields.io/badge/Demo_en_Vivo-Vercel_App-000000?style=flat&logo=vercel&logoColor=white)](https://retail-inventory-web.vercel.app/)
 [![PostgreSQL](https://img.shields.io/badge/Base_de_Datos-PostgreSQL_15-336791?style=flat&logo=postgresql&logoColor=white)](https://www.postgresql.org/)
 [![Docker](https://img.shields.io/badge/Infraestructura-Docker_Compose-2496ED?style=flat&logo=docker&logoColor=white)](docker-compose.yml)
 [![Python](https://img.shields.io/badge/ETL-Python_3.9+_·_pandas_·_SQLAlchemy-3776AB?style=flat&logo=python&logoColor=white)](src/etl_pipeline.py)
