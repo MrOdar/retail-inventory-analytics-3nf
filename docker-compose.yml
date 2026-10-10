@@ -1,0 +1,85 @@
+# =============================================================================
+# Retail Inventory & Waste Reduction Analytics -- local infrastructure
+# =============================================================================
+# One command brings up a fully initialized PostgreSQL 15 instance:
+#
+#     docker compose up -d
+#
+# On the first start (empty volume) PostgreSQL executes every file mounted into
+# /docker-entrypoint-initdb.d in LEXICOGRAPHIC order. The mounts below impose a
+# deliberate order that differs from the repository filenames:
+#
+#   01_schema_ddl_3nf.sql      <- sql/01_schema_ddl_3nf.sql       (DDL, indexes)
+#   02_seed_data.sql           <- sql/02_seed_data.sql            (reference rows)
+#   03_triggers_and_procedures <- sql/04_triggers_and_procedures.sql
+#
+# Procedures and triggers are applied AFTER the seed on purpose: the
+# materialized view is then populated with real rows at build time, and the
+# seed is not evaluated against a trigger it predates.
+#
+# sql/03_analytical_queries.sql is intentionally NOT mounted -- it is a
+# read-only reporting script, not a migration. Run it with `make run-queries`.
+#
+# Re-initialization: the init scripts only run on an empty data volume.
+# To rebuild from scratch:  docker compose down -v && docker compose up -d
+# =============================================================================
+
+name: retail-inventory-analytics
+
+services:
+  postgres:
+    image: postgres:15-alpine
+    container_name: retail_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: retail_admin
+      POSTGRES_PASSWORD: retail_secret
+      POSTGRES_DB: retail_inventory_db
+      # Deterministic collation so ORDER BY results match across machines.
+      POSTGRES_INITDB_ARGS: "--encoding=UTF8 --locale=C"
+      TZ: America/Lima
+      PGTZ: America/Lima
+    ports:
+      # Host 5433 avoids colliding with a PostgreSQL already installed locally.
+      - "5433:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      # --- Ordered initialization scripts (first boot only) ---------------
+      - ./sql/01_schema_ddl_3nf.sql:/docker-entrypoint-initdb.d/01_schema_ddl_3nf.sql:ro
+      - ./sql/02_seed_data.sql:/docker-entrypoint-initdb.d/02_seed_data.sql:ro
+      - ./sql/04_triggers_and_procedures.sql:/docker-entrypoint-initdb.d/03_triggers_and_procedures.sql:ro
+      # --- Read-only mount so `make run-queries` can reach every script ---
+      - ./sql:/sql:ro
+    healthcheck:
+      # The ETL waits on this: the container is only "healthy" once the init
+      # scripts have finished and the database accepts connections.
+      test: ["CMD-SHELL", "pg_isready -U retail_admin -d retail_inventory_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+      start_period: 20s
+
+  # Optional web UI for inspecting the schema and running ad-hoc SQL.
+  # Started only on demand:  docker compose --profile tools up -d pgadmin
+  pgadmin:
+    image: dpage/pgadmin4:8.12
+    container_name: retail_pgadmin
+    profiles: ["tools"]
+    restart: unless-stopped
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@retail.local
+      PGADMIN_DEFAULT_PASSWORD: admin
+      PGADMIN_CONFIG_SERVER_MODE: "False"
+    ports:
+      - "5050:80"
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+volumes:
+  pgdata:
+    name: retail_pgdata
+  pgadmin_data:
+    name: retail_pgadmin_data

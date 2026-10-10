@@ -1,0 +1,31 @@
+# --- Python ----------------------------------------------------------------
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+env/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# --- Secrets & local environment -------------------------------------------
+.env
+*.local
+
+# --- Generated data artifacts ----------------------------------------------
+# The datasets are reproducible from a fixed seed, so they are not versioned.
+# Run:  python src/data_generator.py
+data/raw/*.csv
+data/quarantine/*.csv
+data/processed/*
+
+# --- ETL audit log (regenerated on every run) ------------------------------
+docs/etl_execution.log
+
+# --- OS / editor noise ------------------------------------------------------
+.DS_Store
+Thumbs.db
+desktop.ini
+.vscode/
+.idea/
